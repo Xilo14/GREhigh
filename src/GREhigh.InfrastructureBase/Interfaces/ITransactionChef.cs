@@ -1,4 +1,4 @@
-namespace GREhigh.Infrastructure {
+namespace GREhigh.Infrastructure.Interfaces {
     public interface ITransactionChef {
 
     }
