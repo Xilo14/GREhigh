@@ -20,7 +20,7 @@ namespace GREhigh {
 
         private readonly List<Task> _partyConsumers;
         private readonly List<Task> _updateConsumers;
-        private readonly ClusterParams _params;
+        internal readonly ClusterParams _params;
         public RepositoriesRegistry RepositoriesRegistry { get; private set; }
         public HandlersRegistry HandlersRegistry { get; private set; }
         public FactoriesRegistry FactoriesRegistry { get; private set; }

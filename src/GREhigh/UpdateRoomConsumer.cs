@@ -48,14 +48,8 @@ namespace GREhigh {
                 } else {
                     _ConsumeFromSchedular(record);
                 }
-
-
-
-
-
             }
         }
-
         private void _ConsumeFromSchedular(UpdateQueueRecord record) {
             var uof = _uofFactory.GetInfrastructure();
             uof.SetRepositoryRegistry(_cluster.RepositoriesRegistry);
@@ -77,6 +71,7 @@ namespace GREhigh {
             var handlerFactory = _handlersRegistry.GetForRoom(record.RoomType);
             var handler = handlerFactory.GetInfrastructure();
             handler.Room = room;
+            handler.Randomizer = _cluster._params.RandomizerFactory.GetInfrastructure();
 
             var schedular = _schedularFactory.GetInfrastructure();
             switch (record.RecordType) {
@@ -138,6 +133,7 @@ namespace GREhigh {
             var handlerFactory = _handlersRegistry.GetForRoom(update.RoomType);
             var handler = handlerFactory.GetInfrastructure();
             handler.Room = room;
+            handler.Randomizer = _cluster._params.RandomizerFactory.GetInfrastructure();
 
             if (!handler.HandleUpdate(update, out rawTransactions)) {
                 _synchronizer.Free(room);

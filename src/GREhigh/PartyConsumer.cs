@@ -111,6 +111,7 @@ namespace GREhigh {
             var handlerFactory = _handlersRegistry.GetForRoom(party.RoomType);
             var handler = handlerFactory.GetInfrastructure();
             handler.Room = room;
+            handler.Randomizer = _cluster._params.RandomizerFactory.GetInfrastructure();
 
             if (!handler.TryAddParty(party, out rawTransactions)) {
                 _synchronizer.Free(room);
