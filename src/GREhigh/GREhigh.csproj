@@ -4,6 +4,8 @@
     <ProjectReference Include="..\GREhigh.DomainBase\GREhigh.DomainBase.csproj" />
     <ProjectReference Include="..\GREhigh.InfrastructureBase\GREhigh.InfrastructureBase.csproj" />
     <ProjectReference Include="..\GREhigh.RoomStaffBase\GREhigh.RoomStaffBase.csproj" />
+    <ProjectReference Include="..\GREhigh.RoomRegistries\GREhigh.RoomRegistries.csproj" />
+    <ProjectReference Include="..\GREhigh.Utility\GREhigh.Utility.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
