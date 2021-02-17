@@ -7,9 +7,10 @@ using GREhigh.RoomRegistries;
 namespace GREhigh.Infrastructure.Interfaces {
     public interface IUnitOfWorkGREhigh : IDisposable {
         public void Save();
-        public bool GetRepository<TEntity>(out TEntity repository) where TEntity : IRepository;
-        public bool GetRepository<TEntity>(Type typeRoom, out TEntity repository) where TEntity : IRepository;
-        public bool SetRepositoryRegistry<TEntity>(AbstractRegistry<TEntity> repositoryRegistry)
-            where TEntity : class;
+        public bool TryGetRoomRepository<T>(Type typeRoom, out T repository) where T : IRepository;
+        public bool SetRepositoryRegistry<T>(AbstractRegistry<T> repositoryRegistry)
+            where T : class;
+        public IRepository<Transaction> GetTransactionsRepository();
+        public IRepository<Player> GetPlayerRepository();
     }
 }
