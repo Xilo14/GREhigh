@@ -8,8 +8,8 @@ namespace GREhigh {
                 IPartyQueue queue) {
             _queue = queue;
         }
-        public bool TryProduceParty<TRoomEntity>(Party<TRoomEntity> party)
-                where TRoomEntity : Room {
+        public bool TryProduceParty<TPartyEntity>(TPartyEntity party)
+                where TPartyEntity : Party<Room> {
             //TODO check coins
             return _queue.Enqueue(party);
         }
