@@ -47,7 +47,7 @@ namespace GREhigh {
 
                 var uof = _uofFactory.GetInfrastructure();
                 uof.SetRepositoryRegistry(_cluster.RepositoriesRegistry);
-                if (!uof.GetRepository(party.RoomType, out IRoomRepository<Room> roomRepository))
+                if (!uof.TryGetRoomRepository(party.RoomType, out IRoomRepository<Room> roomRepository))
                     throw new Exception("Room was not registered!");//TODO exception
 
                 var room = roomRepository.GetForParty(party).FirstOrDefault();
@@ -74,7 +74,7 @@ namespace GREhigh {
             var typeUpdate = RoomUpdatedEventArgs.UpdateTypeEnum.Created;
 
             var transactions = _transactionChef.Cook(rawTransactions);
-            uof.GetRepository(out IRepository<Transaction> transactionsRepository);
+            var transactionsRepository = uof.GetTransactionsRepository();
             transactionsRepository.Insert(transactions);
 
             uof.Save();
@@ -120,7 +120,7 @@ namespace GREhigh {
             var typeUpdate = RoomUpdatedEventArgs.UpdateTypeEnum.UsersAdded;
             var schedular = _schedularFactory.GetInfrastructure();
             var transactions = _transactionChef.Cook(rawTransactions);
-            uof.GetRepository(out IRepository<Transaction> transactionsRepository);
+            var transactionsRepository = uof.GetTransactionsRepository();
             transactionsRepository.Insert(transactions);
 
             if (room.IsCanStart && handler.IsStateChanged) {

@@ -59,7 +59,7 @@ namespace GREhigh {
         private void _ConsumeFromSchedular(UpdateQueueRecord record) {
             var uof = _uofFactory.GetInfrastructure();
             uof.SetRepositoryRegistry(_cluster.RepositoriesRegistry);
-            if (!uof.GetRepository(record.RoomType, out IRoomRepository<Room> roomRepository))
+            if (!uof.TryGetRoomRepository(record.RoomType, out IRoomRepository<Room> roomRepository))
                 throw new Exception("Room was not registered!");//TODO exception
 
             var room = roomRepository.GetByID(record.RoomId);
@@ -104,7 +104,7 @@ namespace GREhigh {
 
 
             var transactions = _transactionChef.Cook(rawTransactions);
-            uof.GetRepository(out IRepository<Transaction> transactionsRepository);
+            var transactionsRepository = uof.GetTransactionsRepository();
             transactionsRepository.Insert(transactions);
 
             uof.Save();
@@ -120,7 +120,7 @@ namespace GREhigh {
             var update = record.UpdateRoom;
             var uof = _uofFactory.GetInfrastructure();
             uof.SetRepositoryRegistry(_cluster.RepositoriesRegistry);
-            if (!uof.GetRepository(update.RoomType, out IRoomRepository<Room> roomRepository))
+            if (!uof.TryGetRoomRepository(update.RoomType, out IRoomRepository<Room> roomRepository))
                 throw new Exception("Room was not registered!");//TODO exception
 
             var room = roomRepository.GetByID(update.RoomId);
@@ -154,7 +154,7 @@ namespace GREhigh {
             }
 
             var transactions = _transactionChef.Cook(rawTransactions);
-            uof.GetRepository(out IRepository<Transaction> transactionsRepository);
+            var transactionsRepository = uof.GetTransactionsRepository();
             transactionsRepository.Insert(transactions);
 
             uof.Save();
