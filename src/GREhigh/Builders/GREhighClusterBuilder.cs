@@ -35,7 +35,6 @@ namespace GREhigh.Builders {
             _params.RoomSynchronizerFactory = factory;
             return this;
         }
-
         public GREhighClusterBuilder WithCountPartyConsumer(uint count) {
             _params.CountPartyConsumerThreads = count;
             return this;
