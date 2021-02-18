@@ -6,8 +6,7 @@ using System.Linq.Expressions;
 namespace GREhigh.Infrastructure.Interfaces {
 
     public interface IRepository { }
-    public interface IRepository<TEntity> : IRepository
-        where TEntity : class {
+    public interface IRepository<TEntity> : IRepository {
         public IEnumerable<TEntity> Get(
             Expression<Func<TEntity, bool>> filter = null,
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
