@@ -3,7 +3,7 @@ using System;
 namespace GREhigh.DomainBase {
     public abstract class Room {
         public object RoomId { get; set; }
-        public object SchedularJobId { get; set; }
+        public object SchedulerJobId { get; set; }
         public bool IsCanStart { get; }
         public StatusEnum Status { get; set; }
         public readonly TimeSpan WaitingTimeout = TimeSpan.FromHours(3);

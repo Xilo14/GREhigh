@@ -15,7 +15,7 @@ namespace GREhigh {
         private readonly FactoriesRegistry _factoriesRegistry;
         private readonly HandlersRegistry _handlersRegistry;
         private readonly ITransactionChef _transactionChef;
-        private readonly IInfrastructureFactory<ISchedular> _schedularFactory;
+        private readonly IInfrastructureFactory<IScheduler> _schedulerFactory;
         internal UpdateRoomConsumer(
                 GREhighCluster cluster,
                 IUpdateRoomQueue queue,
@@ -24,7 +24,7 @@ namespace GREhigh {
                 FactoriesRegistry factoriesRegistry,
                 HandlersRegistry handlersRegistry,
                 ITransactionChef transactionChef,
-                IInfrastructureFactory<ISchedular> schedularFactory) {
+                IInfrastructureFactory<IScheduler> schedulerFactory) {
             _cluster = cluster;
             _queue = queue;
             _synchronizer = synchronizer;
@@ -32,7 +32,7 @@ namespace GREhigh {
             _factoriesRegistry = factoriesRegistry;
             _transactionChef = transactionChef;
             _handlersRegistry = handlersRegistry;
-            _schedularFactory = schedularFactory;
+            _schedulerFactory = schedulerFactory;
         }
         public async void Consume() {
             while (true) {
@@ -46,11 +46,11 @@ namespace GREhigh {
                 if (record.RecordType == UpdateQueueRecord.RecordTypeEnum.Update) {
                     _ConsumeUpdate(record);
                 } else {
-                    _ConsumeFromSchedular(record);
+                    _ConsumeFromScheduler(record);
                 }
             }
         }
-        private void _ConsumeFromSchedular(UpdateQueueRecord record) {
+        private void _ConsumeFromScheduler(UpdateQueueRecord record) {
             var uof = _uofFactory.GetInfrastructure();
             uof.SetRepositoryRegistry(_cluster.RepositoriesRegistry);
             if (!uof.TryGetRoomRepository(record.RoomType, out IRoomRepository<Room> roomRepository))
@@ -73,24 +73,22 @@ namespace GREhigh {
             handler.Room = room;
             handler.Randomizer = _cluster._params.RandomizerFactory.GetInfrastructure();
 
-            var schedular = _schedularFactory.GetInfrastructure();
+            var scheduler = _schedulerFactory.GetInfrastructure();
             switch (record.RecordType) {
                 case UpdateQueueRecord.RecordTypeEnum.Cancellation:
-                    if (room.SchedularJobId != null)
-                        schedular.RemoveJob(room.SchedularJobId);
+                    if (room.SchedulerJobId != null)
+                        scheduler.RemoveJob(room.SchedulerJobId);
                     handler.Cancel(out rawTransactions);
                     break;
                 case UpdateQueueRecord.RecordTypeEnum.FinishPreparing:
                     handler.Start(out rawTransactions);
-                    room.SchedularJobId = schedular.AddJob(
-                            _cluster.GetUpdateProducer().ProduceTick,
+                    room.SchedulerJobId = scheduler.AddJobTick(
                             room.TickInterval,
                             room.RoomId);
                     break;
                 case UpdateQueueRecord.RecordTypeEnum.Tick:
                     handler.Tick(out rawTransactions);
-                    room.SchedularJobId = schedular.AddJob(
-                            _cluster.GetUpdateProducer().ProduceTick,
+                    room.SchedulerJobId = scheduler.AddJobTick(
                             room.TickInterval,
                             room.RoomId);
                     break;
@@ -140,11 +138,10 @@ namespace GREhigh {
                 _queue.Enqueue(record);
                 return;
             }
-            var schedular = _schedularFactory.GetInfrastructure();
+            var scheduler = _schedulerFactory.GetInfrastructure();
             if (room.IsCanStart && handler.IsStateChanged) {
-                schedular.RemoveJob(room.SchedularJobId);
-                room.SchedularJobId = schedular.AddJob(
-                    _cluster.GetUpdateProducer().ProduceFinishPreparing,
+                scheduler.RemoveJob(room.SchedulerJobId);
+                room.SchedulerJobId = scheduler.AddJobFinishPreparing(
                     room.PreparingTime,
                     room.RoomId);
             }

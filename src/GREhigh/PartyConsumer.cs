@@ -17,7 +17,7 @@ namespace GREhigh {
         private readonly FactoriesRegistry _factoriesRegistry;
         private readonly HandlersRegistry _handlersRegistry;
         private readonly ITransactionChef _transactionChef;
-        private readonly IInfrastructureFactory<ISchedular> _schedularFactory;
+        private readonly IInfrastructureFactory<IScheduler> _schedulerFactory;
 
         internal PartyConsumer(
                 GREhighCluster cluster,
@@ -27,7 +27,7 @@ namespace GREhigh {
                 FactoriesRegistry factoriesRegistry,
                 HandlersRegistry handlersRegistry,
                 ITransactionChef transactionChef,
-                IInfrastructureFactory<ISchedular> schedularFactory) {
+                IInfrastructureFactory<IScheduler> schedulerFactory) {
             _cluster = cluster;
             _queue = queue;
             _synchronizer = synchronizer;
@@ -35,7 +35,7 @@ namespace GREhigh {
             _factoriesRegistry = factoriesRegistry;
             _transactionChef = transactionChef;
             _handlersRegistry = handlersRegistry;
-            _schedularFactory = schedularFactory;
+            _schedulerFactory = schedulerFactory;
         }
         public async Task Consume() {
             while (true) {
@@ -68,7 +68,7 @@ namespace GREhigh {
             var rawTransactions = new List<RawTransaction>();
             var roomFactory = _factoriesRegistry.GetForRoom(party.RoomType);
             var room = roomFactory.CreateRoomForParty(party, out rawTransactions);
-            var schedular = _schedularFactory.GetInfrastructure();
+            var scheduler = _schedulerFactory.GetInfrastructure();
 
 
             var typeUpdate = RoomUpdatedEventArgs.UpdateTypeEnum.Created;
@@ -78,14 +78,12 @@ namespace GREhigh {
             transactionsRepository.Insert(transactions);
 
             uof.Save();
-            if (room.IsCanStart && room.SchedularJobId == null) {
-                room.SchedularJobId = schedular.AddJob(
-                    _cluster.GetUpdateProducer().ProduceFinishPreparing,
+            if (room.IsCanStart && room.SchedulerJobId == null) {
+                room.SchedulerJobId = scheduler.AddJobFinishPreparing(
                     room.PreparingTime,
                     room.RoomId);
             } else {
-                room.SchedularJobId = schedular.AddJob(
-                    _cluster.GetUpdateProducer().ProduceCancellation,
+                room.SchedulerJobId = scheduler.AddJobCancellation(
                     room.WaitingTimeout,
                     room.RoomId);
             }
@@ -119,15 +117,14 @@ namespace GREhigh {
                 return;
             }
             var typeUpdate = RoomUpdatedEventArgs.UpdateTypeEnum.UsersAdded;
-            var schedular = _schedularFactory.GetInfrastructure();
+            var scheduler = _schedulerFactory.GetInfrastructure();
             var transactions = _transactionChef.Cook(rawTransactions);
             var transactionsRepository = uof.GetTransactionsRepository();
             transactionsRepository.Insert(transactions);
 
             if (room.IsCanStart && handler.IsStateChanged) {
-                schedular.RemoveJob(room.SchedularJobId);
-                room.SchedularJobId = schedular.AddJob(
-                    _cluster.GetUpdateProducer().ProduceFinishPreparing,
+                scheduler.RemoveJob(room.SchedulerJobId);
+                room.SchedulerJobId = scheduler.AddJobFinishPreparing(
                     room.PreparingTime,
                     room.RoomId);
             }
