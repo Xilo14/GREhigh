@@ -19,8 +19,8 @@ namespace GREhigh.Builders {
             _params.UpdateRoomQueueFactory = factory;
             return this;
         }
-        public GREhighClusterBuilder WithSchedular(IInfrastructureFactory<ISchedular> factory) {
-            _params.SchedularFactory = factory;
+        public GREhighClusterBuilder WithScheduler(IInfrastructureFactory<IScheduler> factory) {
+            _params.SchedulerFactory = factory;
             return this;
         }
         public GREhighClusterBuilder WithTransactionChef(IInfrastructureFactory<ITransactionChef> factory) {
