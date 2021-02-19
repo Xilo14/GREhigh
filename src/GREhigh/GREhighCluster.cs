@@ -44,7 +44,7 @@ namespace GREhigh {
             public IInfrastructureFactory<IRoomSynchronizer> RoomSynchronizerFactory { get; set; }
             public IInfrastructureFactory<ITransactionChef> TransactionChefFactory { get; set; }
             public IInfrastructureFactory<IRandomizer> RandomizerFactory { get; set; }
-            public IInfrastructureFactory<ISchedular> SchedularFactory { get; set; }
+            public IInfrastructureFactory<IScheduler> SchedularFactory { get; set; }
             public IInfrastructureFactory<IUnitOfWorkGREhigh> UnitOfWorkFactory { get; set; }
 
         }
