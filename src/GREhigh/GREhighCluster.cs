@@ -44,7 +44,7 @@ namespace GREhigh {
             public IInfrastructureFactory<IRoomSynchronizer> RoomSynchronizerFactory { get; set; }
             public IInfrastructureFactory<ITransactionChef> TransactionChefFactory { get; set; }
             public IInfrastructureFactory<IRandomizer> RandomizerFactory { get; set; }
-            public IInfrastructureFactory<IScheduler> SchedularFactory { get; set; }
+            public IInfrastructureFactory<IScheduler> SchedulerFactory { get; set; }
             public IInfrastructureFactory<IUnitOfWorkGREhigh> UnitOfWorkFactory { get; set; }
 
         }
@@ -83,7 +83,7 @@ namespace GREhigh {
                         FactoriesRegistry,
                         HandlersRegistry,
                         _params.TransactionChefFactory.GetInfrastructure(),
-                        _params.SchedularFactory
+                        _params.SchedulerFactory
                         ).Consume,
                     cancellationSource.Token,
                     TaskCreationOptions.LongRunning,
@@ -102,7 +102,7 @@ namespace GREhigh {
                         FactoriesRegistry,
                         HandlersRegistry,
                         _params.TransactionChefFactory.GetInfrastructure(),
-                        _params.SchedularFactory
+                        _params.SchedulerFactory
                         ).Consume,
                     cancellationSource.Token,
                     TaskCreationOptions.LongRunning,
