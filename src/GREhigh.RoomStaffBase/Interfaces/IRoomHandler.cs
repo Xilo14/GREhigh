@@ -14,9 +14,9 @@ namespace GREhigh.RoomStaffBase.Interfaces {
             out TEnumerableRawTransaction rawTransactions)
                 where TEnumerableRawTransaction : IEnumerable<RawTransaction>;
         public bool TryAddParty<TEnumerableRawTransaction>(
-            Party<TRoom> party,
+            Party party,
             out TEnumerableRawTransaction rawTransactions)
-                where TEnumerableRawTransaction : IEnumerable<RawTransaction>;
+                where TEnumerableRawTransaction : IEnumerable<RawTransaction>, new();
         public void Cancel<TEnumerableRawTransaction>(
             out TEnumerableRawTransaction rawTransactions)
                 where TEnumerableRawTransaction : IEnumerable<RawTransaction>;
