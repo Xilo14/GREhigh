@@ -53,7 +53,7 @@ namespace GREhigh {
         private void _ConsumeFromScheduler(UpdateQueueRecord record) {
             var uof = _uofFactory.GetInfrastructure();
             uof.SetRepositoryRegistry(_cluster.RepositoriesRegistry);
-            if (!uof.TryGetRoomRepository(record.RoomType, out IRoomRepository<Room> roomRepository))
+            if (!uof.TryGetRoomRepository(record.RoomType, out IRoomRepository roomRepository))
                 throw new Exception("Room was not registered!");//TODO exception
 
             var room = roomRepository.GetByID(record.RoomId);
@@ -74,6 +74,7 @@ namespace GREhigh {
             handler.Randomizer = _cluster._params.RandomizerFactory.GetInfrastructure();
 
             var scheduler = _schedulerFactory.GetInfrastructure();
+            scheduler.SetUpdateProducer(_cluster.GetUpdateProducer());
             switch (record.RecordType) {
                 case UpdateQueueRecord.RecordTypeEnum.Cancellation:
                     if (room.SchedulerJobId != null)
@@ -82,15 +83,19 @@ namespace GREhigh {
                     break;
                 case UpdateQueueRecord.RecordTypeEnum.FinishPreparing:
                     handler.Start(out rawTransactions);
-                    room.SchedulerJobId = scheduler.AddJobTick(
-                            room.TickInterval,
-                            room.RoomId);
+                    if (room.Status == Room.StatusEnum.InProccess)
+                        room.SchedulerJobId = scheduler.AddJobTick(
+                                room.TickInterval,
+                                room.RoomId,
+                                room.GetType());
                     break;
                 case UpdateQueueRecord.RecordTypeEnum.Tick:
                     handler.Tick(out rawTransactions);
-                    room.SchedulerJobId = scheduler.AddJobTick(
-                            room.TickInterval,
-                            room.RoomId);
+                    if (room.Status == Room.StatusEnum.InProccess)
+                        room.SchedulerJobId = scheduler.AddJobTick(
+                                room.TickInterval,
+                                room.RoomId,
+                                room.GetType());
                     break;
             }
 
@@ -113,7 +118,7 @@ namespace GREhigh {
             var update = record.UpdateRoom;
             var uof = _uofFactory.GetInfrastructure();
             uof.SetRepositoryRegistry(_cluster.RepositoriesRegistry);
-            if (!uof.TryGetRoomRepository(update.RoomType, out IRoomRepository<Room> roomRepository))
+            if (!uof.TryGetRoomRepository(update.RoomType, out IRoomRepository roomRepository))
                 throw new Exception("Room was not registered!");//TODO exception
 
             var room = roomRepository.GetByID(update.RoomId);
@@ -139,11 +144,13 @@ namespace GREhigh {
                 return;
             }
             var scheduler = _schedulerFactory.GetInfrastructure();
+            scheduler.SetUpdateProducer(_cluster.GetUpdateProducer());
             if (room.IsCanStart && handler.IsStateChanged) {
                 scheduler.RemoveJob(room.SchedulerJobId);
                 room.SchedulerJobId = scheduler.AddJobFinishPreparing(
                     room.PreparingTime,
-                    room.RoomId);
+                    room.RoomId,
+                    room.GetType());
             }
 
             var transactions = _transactionChef.Cook(rawTransactions);

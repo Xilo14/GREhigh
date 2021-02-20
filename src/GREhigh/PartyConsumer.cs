@@ -47,7 +47,7 @@ namespace GREhigh {
 
                 var uof = _uofFactory.GetInfrastructure();
                 uof.SetRepositoryRegistry(_cluster.RepositoriesRegistry);
-                if (!uof.TryGetRoomRepository(party.RoomType, out IRoomRepository<Room> roomRepository))
+                if (!uof.TryGetRoomRepository(party.RoomType, out IRoomRepository roomRepository))
                     throw new Exception("Room was not registered!");//TODO exception
 
                 var room = roomRepository.GetForParty(party).FirstOrDefault();
@@ -62,14 +62,17 @@ namespace GREhigh {
         }
 
         private void _CreateRoom(
-                Party<Room> party,
+                Party party,
                 IUnitOfWorkGREhigh uof,
-                IRoomRepository<Room> roomRepository) {
+                IRoomRepository roomRepository) {
             var rawTransactions = new List<RawTransaction>();
             var roomFactory = _factoriesRegistry.GetForRoom(party.RoomType);
-            var room = roomFactory.CreateRoomForParty(party, out rawTransactions);
-            var scheduler = _schedulerFactory.GetInfrastructure();
 
+            if (!roomFactory.TryCreateRoomForParty(out var room, party, out rawTransactions))
+                return;
+            roomRepository.Insert(room);
+            var scheduler = _schedulerFactory.GetInfrastructure();
+            scheduler.SetUpdateProducer(_cluster.GetUpdateProducer());
 
             var typeUpdate = RoomUpdatedEventArgs.UpdateTypeEnum.Created;
 
@@ -81,15 +84,17 @@ namespace GREhigh {
             if (room.IsCanStart && room.SchedulerJobId == null) {
                 room.SchedulerJobId = scheduler.AddJobFinishPreparing(
                     room.PreparingTime,
-                    room.RoomId);
+                    room.RoomId,
+                    room.GetType());
             } else {
                 room.SchedulerJobId = scheduler.AddJobCancellation(
                     room.WaitingTimeout,
-                    room.RoomId);
+                    room.RoomId,
+                    room.GetType());
             }
 
 
-            roomRepository.Insert(room);
+
             uof.Dispose();
             _cluster.OnRoomUpdated(
                                 new RoomUpdatedEventArgs(
@@ -98,9 +103,9 @@ namespace GREhigh {
         }
         private void _AddToExistsRoom(
                 Room room,
-                Party<Room> party,
+                Party party,
                 IUnitOfWorkGREhigh uof,
-                IRoomRepository<Room> roomRepository) {
+                IRoomRepository roomRepository) {
             if (!_synchronizer.TryLock(room)) {
                 _queue.Enqueue(party);
                 return;
@@ -118,6 +123,7 @@ namespace GREhigh {
             }
             var typeUpdate = RoomUpdatedEventArgs.UpdateTypeEnum.UsersAdded;
             var scheduler = _schedulerFactory.GetInfrastructure();
+            scheduler.SetUpdateProducer(_cluster.GetUpdateProducer());
             var transactions = _transactionChef.Cook(rawTransactions);
             var transactionsRepository = uof.GetTransactionsRepository();
             transactionsRepository.Insert(transactions);
@@ -126,7 +132,8 @@ namespace GREhigh {
                 scheduler.RemoveJob(room.SchedulerJobId);
                 room.SchedulerJobId = scheduler.AddJobFinishPreparing(
                     room.PreparingTime,
-                    room.RoomId);
+                    room.RoomId,
+                    room.GetType());
             }
 
             roomRepository.Update(room);
