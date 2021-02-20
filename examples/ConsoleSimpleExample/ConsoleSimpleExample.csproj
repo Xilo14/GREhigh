@@ -2,6 +2,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\GREhigh\GREhigh.csproj" />
+    <ProjectReference Include="..\..\..\GREhigh.Infrastructure.InMemoryPack\src\DataStorageInMemory\DataStorageInMemory.csproj" />
+    <ProjectReference Include="..\..\..\GREhigh.Infrastructure.InMemoryPack\src\PartyQueueInMemory\PartyQueueInMemory.csproj" />
+    <ProjectReference Include="..\..\..\GREhigh.Infrastructure.InMemoryPack\src\RoomSynchronizerInMemory\RoomSynchronizerInMemory.csproj" />
+    <ProjectReference Include="..\..\..\GREhigh.Infrastructure.InMemoryPack\src\UpdateRoomQueueInMemory\UpdateRoomQueueInMemory.csproj" />
+    <ProjectReference Include="..\..\..\GREhigh.Infrasctructure.Randomizer.SimpleRandomizer\src\SimpleRandomizer\SimpleRandomizer.csproj" />
+    <ProjectReference Include="..\..\..\GREhigh.Infrasctructure.Scheduler.QuartzSchedular\src\QuartzScheduler\QuartzScheduler.csproj" />
+    <ProjectReference Include="..\..\..\GREhigh.Games.HeadsOrTails\src\GREhigh.Games.HeadsOrTails\GREhigh.Games.HeadsOrTails.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
