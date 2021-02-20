@@ -7,6 +7,9 @@ namespace GREhigh.Builders {
         public GREhighClusterBuilder() {
 
         }
+        public GREhighCluster Build() {
+            return new GREhighCluster(_params);
+        }
         public GREhighClusterBuilder WithRandomizer(IInfrastructureFactory<IRandomizer> factory) {
             _params.RandomizerFactory = factory;
             return this;
