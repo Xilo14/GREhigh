@@ -3,7 +3,10 @@ using GREhigh.DomainBase;
 using GREhigh.DomainBase.Interfaces;
 
 namespace GREhigh.Infrastructure.Interfaces {
-    public interface IRoomRepository<TEntity> : IRepository<TEntity> where TEntity : Room {
-        public IEnumerable<TEntity> GetForParty(Party<TEntity> party);
+    public interface IRoomRepository<TEntity> : IRoomRepository where TEntity : Room {
+        public new IEnumerable<TEntity> GetForParty(Party party);
+    }
+    public interface IRoomRepository : IRepository<Room> {
+        public IEnumerable<Room> GetForParty(Party party);
     }
 }
