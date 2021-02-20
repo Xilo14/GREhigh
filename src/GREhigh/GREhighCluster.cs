@@ -15,11 +15,11 @@ namespace GREhigh {
         private ClusterStateEnum _clusterState;
         public ClusterStateEnum ClusterState {
             get => _clusterState;
-            private set { _clusterState = value; throw new NotImplementedException(); }
+            private set { _clusterState = value; }
         }
 
-        private readonly List<Task> _partyConsumers;
-        private readonly List<Task> _updateConsumers;
+        private readonly List<Task> _partyConsumers = new();
+        private readonly List<Task> _updateConsumers = new();
         internal readonly ClusterParams _params;
         public RepositoriesRegistry RepositoriesRegistry { get; private set; }
         public HandlersRegistry HandlersRegistry { get; private set; }
@@ -65,7 +65,6 @@ namespace GREhigh {
         public async Task<bool> StartAsync() {
             return await new Task<bool>(Start);
         }
-
         public bool Start() {
             if (ClusterState != ClusterStateEnum.Ready)
                 throw new Exception();//TODO exception
