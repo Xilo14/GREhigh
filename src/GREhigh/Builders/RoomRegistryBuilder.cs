@@ -10,7 +10,7 @@ namespace GREhigh.Builders {
         private readonly FactoriesRegistry _factoriesRegistry;
         private readonly RepositoriesRegistry _repositoriesRegistry;
 
-        private IInfrastructureFactory<IRoomRepository<Room>> _repositoryFactory;
+        private IInfrastructureFactory<IRoomRepository> _repositoryFactory;
         private IInfrastructureFactory<IRoomHandler<Room>> _handlerFactory;
         private IRoomFactory _roomFactory;
         private readonly GREhighClusterBuilder _builder;
@@ -31,7 +31,7 @@ namespace GREhigh.Builders {
             _builder = builder;
         }
 
-        public RoomRegistryBuilder WithRepository(IInfrastructureFactory<IRoomRepository<Room>> factory) {
+        public RoomRegistryBuilder WithRepository(IInfrastructureFactory<IRoomRepository> factory) {
             _repositoryFactory = factory;
             return this;
         }
