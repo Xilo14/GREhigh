@@ -11,6 +11,8 @@ namespace GREhigh {
         }
 
         public bool TryProduce(Party party) {
+            if (!_queue.IsPartyUniq(party))
+                return false;
             return _queue.Enqueue(party);
         }
     }
