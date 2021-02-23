@@ -68,7 +68,11 @@ namespace GREhigh {
             var rawTransactions = new List<RawTransaction>();
             var roomFactory = _factoriesRegistry.GetForRoom(party.RoomType);
 
-            if (!roomFactory.TryCreateRoomForParty(out var room, party, out rawTransactions))
+            var api = _cluster.GetApiEntryPoint();
+            if (!roomFactory.TryCreateRoomForParty(
+                    out var room,
+                    party, out rawTransactions,
+                    party.Players.ToDictionary(p => p, p => api.GetAmountCoins(p))))
                 return;
             roomRepository.Insert(room);
             var scheduler = _schedulerFactory.GetInfrastructure();
@@ -116,9 +120,13 @@ namespace GREhigh {
             handler.Room = room;
             handler.Randomizer = _cluster._params.RandomizerFactory.GetInfrastructure();
 
-            if (!handler.TryAddParty(party, out rawTransactions)) {
+            var api = _cluster.GetApiEntryPoint();
+            if (!handler.TryAddParty(
+                    party,
+                    out rawTransactions,
+                    party.Players.ToDictionary(p => p, p => api.GetAmountCoins(p)))) {
                 _synchronizer.Free(room);
-                _queue.Enqueue(party);
+                //ToDo event cannot add party
                 return;
             }
             var typeUpdate = RoomUpdatedEventArgs.UpdateTypeEnum.UsersAdded;
