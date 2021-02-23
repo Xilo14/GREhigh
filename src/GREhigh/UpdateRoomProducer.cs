@@ -17,21 +17,21 @@ namespace GREhigh {
                 RoomId = update.RoomId,
             });
         }
-        public void ProduceCancellation(object roomId, Type roomType) {
+        public void ProduceCancellation(ulong roomId, Type roomType) {
             _queue.Enqueue(new UpdateQueueRecord() {
                 RecordType = UpdateQueueRecord.RecordTypeEnum.Cancellation,
                 RoomId = roomId,
                 RoomType = roomType
             });
         }
-        public void ProduceTick(object roomId, Type roomType) {
+        public void ProduceTick(ulong roomId, Type roomType) {
             _queue.Enqueue(new UpdateQueueRecord() {
                 RecordType = UpdateQueueRecord.RecordTypeEnum.Tick,
                 RoomId = roomId,
                 RoomType = roomType
             });
         }
-        public void ProduceFinishPreparing(object roomId, Type roomType) {
+        public void ProduceFinishPreparing(ulong roomId, Type roomType) {
             _queue.Enqueue(new UpdateQueueRecord() {
                 RecordType = UpdateQueueRecord.RecordTypeEnum.FinishPreparing,
                 RoomId = roomId,
