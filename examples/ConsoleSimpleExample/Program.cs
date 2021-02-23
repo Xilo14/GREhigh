@@ -42,33 +42,59 @@ namespace ConsoleSimpleExample {
                 }
             };
             cluster.Start();
-            Console.ReadLine();
+            //Console.ReadLine();
+
+            var api = cluster.GetApiEntryPoint();
+
+            var p1 = api.CreateNewPlayer();
+            var p2 = api.CreateNewPlayer();
+            var p3 = api.CreateNewPlayer();
+            var p4 = api.CreateNewPlayer();
+            var p5 = api.CreateNewPlayer();
+            api.AddCoins(100, p1);
+            Console.WriteLine($"p1: {api.GetAmountCoins(p1)}");
+            Console.WriteLine($"p2: {api.GetAmountCoins(p2)}");
+            Console.WriteLine($"p3: {api.GetAmountCoins(p3)}");
+            Console.WriteLine($"p4: {api.GetAmountCoins(p4)}");
+            Console.WriteLine($"p5: {api.GetAmountCoins(p5)}");
 
             var party = new HoTParty() {
-                Players = new List<Player>() { new Player() { PlayerId = 1 } },
+                Players = new List<Player>() { p1 },
+                SearchParams = new HoTRoomSearchParams() { Bet = 50 }
+            };
+            cluster.GetPartyProducer().TryProduce(party);
+            //Console.ReadLine();
+            //Console.ReadLine();
+            party = new HoTParty() {
+                Players = new List<Player>() { p1 },
+                SearchParams = new HoTRoomSearchParams() { Bet = 50 }
+            };
+            while (!cluster.GetPartyProducer().TryProduce(party)) { }
+            party = new HoTParty() {
+                Players = new List<Player>() { p1 },
+                SearchParams = new HoTRoomSearchParams() { Bet = 50 }
+            };
+            while (!cluster.GetPartyProducer().TryProduce(party)) { }
+            Console.ReadLine();
+            party = new HoTParty() {
+                Players = new List<Player>() { p3, p4 },
                 SearchParams = new HoTRoomSearchParams() { Bet = 50 }
             };
             cluster.GetPartyProducer().TryProduce(party);
             Console.ReadLine();
 
             party = new HoTParty() {
-                Players = new List<Player>() { new Player() { PlayerId = 2 } },
+                Players = new List<Player>() { p5 },
                 SearchParams = new HoTRoomSearchParams() { Bet = 50 }
             };
             cluster.GetPartyProducer().TryProduce(party);
 
-            party = new HoTParty() {
-                Players = new List<Player>() { new Player() { PlayerId = 3 }, new Player() { PlayerId = 4 } },
-                SearchParams = new HoTRoomSearchParams() { Bet = 50 }
-            };
-            cluster.GetPartyProducer().TryProduce(party);
             Console.ReadLine();
-
-            party = new HoTParty() {
-                Players = new List<Player>() { new Player() { PlayerId = 5 } },
-                SearchParams = new HoTRoomSearchParams() { Bet = 50 }
-            };
-            cluster.GetPartyProducer().TryProduce(party);
+            Console.WriteLine($"p1: {api.GetAmountCoins(p1)}");
+            Console.WriteLine($"p2: {api.GetAmountCoins(p2)}");
+            Console.WriteLine($"p3: {api.GetAmountCoins(p3)}");
+            Console.WriteLine($"p4: {api.GetAmountCoins(p4)}");
+            Console.WriteLine($"p5: {api.GetAmountCoins(p5)}");
             Console.ReadLine();
         }
 
@@ -79,6 +105,9 @@ namespace ConsoleSimpleExample {
                     coocked.Add(item);
                 };
                 return coocked;
+            }
+            public Transaction Cook(RawTransaction rawTransaction) {
+                return rawTransaction;
             }
         }
         public class TransactionChefMoqFactory : IInfrastructureFactory<ITransactionChef> {
