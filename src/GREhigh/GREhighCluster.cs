@@ -61,8 +61,12 @@ namespace GREhigh {
         public UpdateRoomProducer GetUpdateProducer()
             => new(_params.UpdateRoomQueueFactory.GetInfrastructure());
 
+        public ApiEntryPoint GetApiEntryPoint()
+         => new(_params); 
 
-        public async Task<bool> StartAsync() {
+
+
+       public async Task<bool> StartAsync() {
             return await new Task<bool>(Start);
         }
         public bool Start() {
