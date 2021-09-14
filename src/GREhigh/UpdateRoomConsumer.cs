@@ -53,7 +53,7 @@ namespace GREhigh {
         private void _ConsumeFromScheduler(UpdateQueueRecord record) {
             var uof = _uofFactory.GetInfrastructure();
             uof.SetRepositoryRegistry(_cluster.RepositoriesRegistry);
-            if (!uof.TryGetRoomRepository(record.RoomType, out IRoomRepository roomRepository))
+            if (!uof.TryGetRoomRepository<IRepository<Room>, Room>(record.RoomType, out IRepository<Room> roomRepository))
                 throw new Exception("Room was not registered!");//TODO exception
 
             var room = roomRepository.GetByID(record.RoomId);
@@ -118,7 +118,7 @@ namespace GREhigh {
             var update = record.UpdateRoom;
             var uof = _uofFactory.GetInfrastructure();
             uof.SetRepositoryRegistry(_cluster.RepositoriesRegistry);
-            if (!uof.TryGetRoomRepository(update.RoomType, out IRoomRepository roomRepository))
+            if (!uof.TryGetRoomRepository<IRepository<Room>, Room>(update.RoomType, out IRepository<Room> roomRepository))
                 throw new Exception("Room was not registered!");//TODO exception
 
             var room = roomRepository.GetByID(update.RoomId);

@@ -47,10 +47,18 @@ namespace GREhigh {
 
                 var uof = _uofFactory.GetInfrastructure();
                 uof.SetRepositoryRegistry(_cluster.RepositoriesRegistry);
-                if (!uof.TryGetRoomRepository(party.RoomType, out IRoomRepository roomRepository))
+                if (!uof.TryGetRoomRepository<IRepository<Room>, Room>(
+                    party.RoomType, out var roomRepository))
                     throw new Exception("Room was not registered!");//TODO exception
 
-                var room = roomRepository.GetForParty(party).FirstOrDefault();
+
+                ///
+                /// 
+                var handlerFactory = _handlersRegistry.GetForRoom(party.RoomType);
+                var handler = handlerFactory.GetInfrastructure();
+                var room = handler.GetRoomsForParty(party, roomRepository).FirstOrDefault();
+                /// 
+                ///
 
                 if (room == null) {
                     _CreateRoom(party, uof, roomRepository);
@@ -64,7 +72,7 @@ namespace GREhigh {
         private void _CreateRoom(
                 Party party,
                 IUnitOfWorkGREhigh uof,
-                IRoomRepository roomRepository) {
+                IRepository<Room> roomRepository) {
             var rawTransactions = new List<RawTransaction>();
             var roomFactory = _factoriesRegistry.GetForRoom(party.RoomType);
 
@@ -109,7 +117,7 @@ namespace GREhigh {
                 Room room,
                 Party party,
                 IUnitOfWorkGREhigh uof,
-                IRoomRepository roomRepository) {
+                IRepository<Room> roomRepository) {
             if (!_synchronizer.TryLock(room)) {
                 _queue.Enqueue(party);
                 return;
@@ -144,7 +152,7 @@ namespace GREhigh {
                     room.GetType());
             }
 
-            roomRepository.Update(room);
+            //roomRepository.Update(room);
             uof.Save();
             uof.Dispose();
             _cluster.OnRoomUpdated(

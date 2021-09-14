@@ -22,7 +22,6 @@ namespace GREhigh {
             var transRep = uof.GetTransactionsRepository();
             return transRep.Where(x => x.Player == player).Sum(x => x.Amount);
         }
-
         public bool AddCoins(uint amount, Player player) {
             var uof = _clusterParams.UnitOfWorkFactory.GetInfrastructure();
             var transRep = uof.GetTransactionsRepository();
@@ -40,7 +39,7 @@ namespace GREhigh {
         public bool WithdrawCoins(uint amount, Player player) {
             var uof = _clusterParams.UnitOfWorkFactory.GetInfrastructure();
             var transRep = uof.GetTransactionsRepository();
-            var currentAmount = transRep.Get(x => x.Player == player).Sum(x => x.Amount);
+            var currentAmount = transRep.Get<Transaction>(x => x.Player == player).Sum(x => x.Amount);
             if (amount > currentAmount)
                 return false;
             var rawTrans = new RawTransaction() {
