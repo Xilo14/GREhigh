@@ -7,7 +7,7 @@ using GREhigh.RoomStaffBase.Interfaces;
 using GREhigh.Utility;
 
 namespace GREhigh.RoomRegistries {
-    public class RepositoriesRegistry : AbstractRegistry<IInfrastructureFactory<IRoomRepository>> {
+    public class RepositoriesRegistry : AbstractRegistry<IInfrastructureFactory<IRepository<Room>>> {
         private RepositoriesRegistry() { }
         public static RepositoriesRegistry Instance {
             get { return Singleton<RepositoriesRegistry>.Instance; }
