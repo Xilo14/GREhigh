@@ -1,5 +1,5 @@
 namespace GREhigh.Infrastructure.Interfaces {
-    public interface IInfrastructureFactory<TEntity> {
+    public interface IInfrastructureFactory<out TEntity> {
         public TEntity GetInfrastructure();
     }
 }
