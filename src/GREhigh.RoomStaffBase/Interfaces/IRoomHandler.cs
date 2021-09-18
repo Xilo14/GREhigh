@@ -27,5 +27,7 @@ namespace GREhigh.RoomStaffBase.Interfaces {
         public void Start<TEnumerableRawTransaction>(
             out TEnumerableRawTransaction rawTransactions)
                 where TEnumerableRawTransaction : IEnumerable<RawTransaction>;
+
+        public IEnumerable<Room> GetRoomsForParty(Party party, IRepository<Room> roomRepos);
     }
 }
