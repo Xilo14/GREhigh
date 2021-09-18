@@ -5,10 +5,9 @@ namespace GREhigh.DomainBase {
     public class Transaction : IHaveId<ulong> {
         public ulong TransactionId { get; set; }
         public ulong Id { get => TransactionId; set => TransactionId = value; }
-        public Player Player { get; set; }
+        public virtual Player Player { get; set; }
         public int Amount { get; set; }
         public TransactionTypeEnum Type { get; set; }
-        public object AdditionalInformation { get; set; }
         public enum TransactionTypeEnum {
             Result,
             Freeze,
