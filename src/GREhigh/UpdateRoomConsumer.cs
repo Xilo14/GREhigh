@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using GREhigh.DomainBase;
 using GREhigh.Infrastructure.Interfaces;
@@ -139,10 +140,22 @@ namespace GREhigh {
             handler.Randomizer = _cluster._params.RandomizerFactory.GetInfrastructure();
 
             if (!handler.HandleUpdate(update, out rawTransactions)) {
-                _synchronizer.Free(room);
+
                 _queue.Enqueue(record);
                 return;
             }
+            var transactionsRepository = uof.GetTransactionsRepository();
+            var transactions = _transactionChef.Cook(rawTransactions);
+
+            foreach (var group in transactions.GroupBy(t => t.Player)) {
+                var currentAmount = transactionsRepository.Where(x => x.Player == group.Key).Sum(x => x.Amount);
+                var dif = group.Sum(t => t.Amount);
+                if (currentAmount + dif < 0) {
+                    _synchronizer.Free(room);
+                    return;
+                }
+            }
+
             var scheduler = _schedulerFactory.GetInfrastructure();
             scheduler.SetUpdateProducer(_cluster.GetUpdateProducer());
             if (room.IsCanStart && handler.IsStateChanged) {
@@ -153,8 +166,6 @@ namespace GREhigh {
                     room.GetType());
             }
 
-            var transactions = _transactionChef.Cook(rawTransactions);
-            var transactionsRepository = uof.GetTransactionsRepository();
             transactionsRepository.Insert(transactions);
 
             uof.Save();
