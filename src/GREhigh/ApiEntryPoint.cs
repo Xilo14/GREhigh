@@ -18,9 +18,10 @@ namespace GREhigh {
             return p;
         }
         public int GetAmountCoins(Player player) {
-            var uof = _clusterParams.UnitOfWorkFactory.GetInfrastructure();
+            using var uof = _clusterParams.UnitOfWorkFactory.GetInfrastructure();
             var transRep = uof.GetTransactionsRepository();
-            return transRep.Where(x => x.Player == player).Sum(x => x.Amount);
+            var sum = transRep.Where(x => x.Player.Id == player.Id).Sum(x => x.Amount);
+            return sum;
         }
         public bool AddCoins(uint amount, Player player) {
             var uof = _clusterParams.UnitOfWorkFactory.GetInfrastructure();
