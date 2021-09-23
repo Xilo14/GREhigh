@@ -9,6 +9,10 @@
     <ProjectReference Include="..\..\..\GREhigh.Infrasctructure.Randomizer.SimpleRandomizer\src\SimpleRandomizer\SimpleRandomizer.csproj" />
     <ProjectReference Include="..\..\..\GREhigh.Infrasctructure.Scheduler.QuartzSchedular\src\QuartzScheduler\QuartzScheduler.csproj" />
     <ProjectReference Include="..\..\..\GREhigh.Games.HeadsOrTails\src\GREhigh.Games.HeadsOrTails\GREhigh.Games.HeadsOrTails.csproj" />
+    <ProjectReference Include="..\..\..\GREhigh.Games.SingleWinner/src/GREhigh.Games.SingleWinner/GREhigh.Games.SingleWinner.csproj" />
+    <ProjectReference Include="..\..\..\GREhigh.Games.XRoulette/src/GREhigh.Games.XRoulette/GREhigh.Games.XRoulette.csproj" />
+    <ProjectReference Include="..\..\..\GREhigh.Games.SoloXStages/src/GREhigh.Games.SoloXStages/GREhigh.Games.SoloXStages.csproj" />
+  
   </ItemGroup>
 
   <PropertyGroup>

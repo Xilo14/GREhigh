@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using DataStorageInMemory;
 using GREhigh;
 using GREhigh.Builders;
 using GREhigh.DomainBase;
 using GREhigh.Games.HeadsOrTails;
+using GREhigh.Games.SingleWinner;
+using GREhigh.Games.SoloXStages;
+using GREhigh.Games.XRoulette;
 using GREhigh.Infrastructure.DataStorageInMemory;
 using GREhigh.Infrastructure.Interfaces;
 using GREhigh.Infrastructure.PartyQueueInMemory;
@@ -28,18 +33,38 @@ namespace ConsoleSimpleExample {
                 .WithCountUpdateRoomConsumer(1)
                 .AddRoomToRegistry<HoTRoom>()
                     .WithHandler(new HoTRoomHandlerFactory())
-                    .WithRepository(new HoTRoomRepositoryFactory())
+                    .WithRepository(new RepositoryInMemoryFactory<HoTRoom>())
                     .WithRoomFactory(new HoTRoomFactory())
+                    .SaveRoomToRegistry()
+                .AddRoomToRegistry<SingleWinnerRoom>()
+                    .WithHandler(new SingleWinnerRoomHandlerFactory())
+                    .WithRepository(new RepositoryInMemoryFactory<SingleWinnerRoom>())
+                    .WithRoomFactory(new SingleWinnerRoomFactory())
+                    .SaveRoomToRegistry()
+                .AddRoomToRegistry<XRouletteRoom>()
+                    .WithHandler(new XRouletteRoomHandlerFactory())
+                    .WithRepository(new RepositoryInMemoryFactory<XRouletteRoom>())
+                    .WithRoomFactory(new XRouletteRoomFactory())
+                    .SaveRoomToRegistry()
+                .AddRoomToRegistry<SoloXStagesRoom>()
+                    .WithHandler(new SoloXStagesRoomHandlerFactory())
+                    .WithRepository(new RepositoryInMemoryFactory<SoloXStagesRoom>())
+                    .WithRoomFactory(new SoloXStagesRoomFactory())
                     .SaveRoomToRegistry()
                 .Build();
 
-
+            Room rouletteRoom = null;
             cluster.RoomUpdated += (sender, args) => {
-                Console.WriteLine(args.UpdateType.ToString() + $" {args.Room.RoomId} {args.Room.Status}");
-                if (args.Room.Status == Room.StatusEnum.Finished) {
-                    Console.WriteLine("w:" + ((HoTRoomResult)args.Room.Result).winner.PlayerId);
-                    Console.WriteLine("l:" + ((HoTRoomResult)args.Room.Result).loser.PlayerId);
-                }
+                Console.WriteLine(args.UpdateType.ToString() +
+                    $"{args.Room.GetType().Name} {args.Room.RoomId} {args.Room.Status} {args.Room.Players.Count}");
+
+                if (args.Room is XRouletteRoom)
+                    rouletteRoom = args.Room;
+
+                // if (args.Room.Status == Room.StatusEnum.Finished) {
+                //     Console.WriteLine("w:" + ((SingleWinnerRoomResult)args.Room.Result).winner.PlayerId);
+                //     //Console.WriteLine("l:" + ((HoTRoomResult)args.Room.Result).loser.PlayerId);
+                // }
             };
             cluster.Start();
             //Console.ReadLine();
@@ -51,44 +76,56 @@ namespace ConsoleSimpleExample {
             var p3 = api.CreateNewPlayer();
             var p4 = api.CreateNewPlayer();
             var p5 = api.CreateNewPlayer();
-            api.AddCoins(100, p1);
+            api.AddCoins(200, p1);
+            api.AddCoins(100, p2);
+            api.AddCoins(100, p3);
+            api.AddCoins(100, p4);
+            api.AddCoins(100, p5);
             Console.WriteLine($"p1: {api.GetAmountCoins(p1)}");
             Console.WriteLine($"p2: {api.GetAmountCoins(p2)}");
             Console.WriteLine($"p3: {api.GetAmountCoins(p3)}");
             Console.WriteLine($"p4: {api.GetAmountCoins(p4)}");
             Console.WriteLine($"p5: {api.GetAmountCoins(p5)}");
 
-            var party = new HoTParty() {
+            var party = new Party<SingleWinnerRoom>() {
                 Players = new List<Player>() { p1 },
-                SearchParams = new HoTRoomSearchParams() { Bet = 50 }
+                SearchParams = new SingleWinnerRoomSearchParams() { Bet = 50 }
             };
-            cluster.GetPartyProducer().TryProduce(party);
+            var partyX = new Party<XRouletteRoom>() {
+                Players = new List<Player>() { p1 },
+            };
+            //cluster.GetPartyProducer().TryProduce(party);
+            cluster.GetPartyProducer().TryProduce(partyX);
             //Console.ReadLine();
             //Console.ReadLine();
-            party = new HoTParty() {
+            party = new Party<SingleWinnerRoom>() {
                 Players = new List<Player>() { p1 },
-                SearchParams = new HoTRoomSearchParams() { Bet = 50 }
+                SearchParams = new SingleWinnerRoomSearchParams() { Bet = 50 }
             };
             while (!cluster.GetPartyProducer().TryProduce(party)) { }
-            party = new HoTParty() {
+            party = new Party<SingleWinnerRoom>() {
                 Players = new List<Player>() { p1 },
-                SearchParams = new HoTRoomSearchParams() { Bet = 50 }
+                SearchParams = new SingleWinnerRoomSearchParams() { Bet = 50 }
             };
             while (!cluster.GetPartyProducer().TryProduce(party)) { }
-            Console.ReadLine();
-            party = new HoTParty() {
+            //Console.ReadLine();
+            party = new Party<SingleWinnerRoom>() {
                 Players = new List<Player>() { p3, p4 },
-                SearchParams = new HoTRoomSearchParams() { Bet = 50 }
+                SearchParams = new SingleWinnerRoomSearchParams() { Bet = 50 }
             };
             cluster.GetPartyProducer().TryProduce(party);
-            Console.ReadLine();
+            //Console.ReadLine();
 
-            party = new HoTParty() {
+            party = new Party<SingleWinnerRoom>() {
                 Players = new List<Player>() { p5 },
-                SearchParams = new HoTRoomSearchParams() { Bet = 50 }
+                SearchParams = new SingleWinnerRoomSearchParams() { Bet = 50 }
             };
             cluster.GetPartyProducer().TryProduce(party);
-
+            while (rouletteRoom == null) { }
+            cluster.GetUpdateProducer().TryProduce(new XRouletteUpdateRoom() {
+                Bet = new() { Player = p1, Amount = 50, Sector = XRouletteRoom.SectorsEnum.Grey },
+                RoomId = rouletteRoom.Id
+            });
             Console.ReadLine();
             Console.WriteLine($"p1: {api.GetAmountCoins(p1)}");
             Console.WriteLine($"p2: {api.GetAmountCoins(p2)}");
