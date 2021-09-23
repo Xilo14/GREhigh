@@ -6,6 +6,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Threading;
 using System.Threading.Tasks;
 using GREhigh.Args;
+using GREhigh.DomainBase;
 using GREhigh.Infrastructure.Interfaces;
 using GREhigh.RoomRegistries;
 using GREhigh.Utility;
@@ -42,7 +43,7 @@ namespace GREhigh {
             public IInfrastructureFactory<IPartyQueue> PartyQueueFactory { get; set; }
             public IInfrastructureFactory<IUpdateRoomQueue> UpdateRoomQueueFactory { get; set; }
             public IInfrastructureFactory<IRoomSynchronizer> RoomSynchronizerFactory { get; set; }
-            public IInfrastructureFactory<ITransactionChef> TransactionChefFactory { get; set; }
+            public IInfrastructureFactory<ITransactionChef<Transaction>> TransactionChefFactory { get; set; }
             public IInfrastructureFactory<IRandomizer> RandomizerFactory { get; set; }
             public IInfrastructureFactory<IScheduler> SchedulerFactory { get; set; }
             public IInfrastructureFactory<IUnitOfWorkGREhigh> UnitOfWorkFactory { get; set; }
