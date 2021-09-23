@@ -2,9 +2,8 @@ using System;
 using GREhigh.Utility.Interfaces;
 
 namespace GREhigh.DomainBase {
-    public class Transaction : IHaveId<ulong> {
-        public ulong TransactionId { get; set; }
-        public ulong Id { get => TransactionId; set => TransactionId = value; }
+    public class Transaction : IHaveId<long> {
+        public long Id { get; set; }
         public virtual Player Player { get; set; }
         public int Amount { get; set; }
         public TransactionTypeEnum Type { get; set; }

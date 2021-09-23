@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using GREhigh.Utility.Interfaces;
 
 namespace GREhigh.DomainBase {
-    public class Player : IHaveId<ulong> {
-        public ulong PlayerId { get; set; }
-        public ulong Id { get => PlayerId; set => PlayerId = value; }
+    public class Player : IHaveId<long> {
+        public long Id { get; set; }
+        public virtual List<Room> Rooms { get; set; }
     }
 }

@@ -4,11 +4,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using GREhigh.Utility.Interfaces;
 
 namespace GREhigh.DomainBase {
-    public abstract class Room : IHaveId<ulong> {
+    public abstract class Room : IHaveId<long> {
         public virtual DateTime LastUpdateDateTime { get; set; } = DateTime.Now;
         public virtual object Result { get; set; }
         public virtual List<Player> Players { get; set; }
-        public virtual ulong RoomId { get; set; }
+        public virtual long RoomId { get; set; }
         public virtual object SchedulerJobId { get; set; }
         public virtual bool IsCanStart { get; set; }
         private StatusEnum _status;
@@ -19,7 +19,7 @@ namespace GREhigh.DomainBase {
                 _status = value;
             }
         }
-        public ulong Id { get => RoomId; set => RoomId = value; }
+        public long Id { get => RoomId; set => RoomId = value; }
 
         public TimeSpan WaitingTimeout = TimeSpan.FromHours(3);
         public TimeSpan PreparingTime = TimeSpan.FromSeconds(15);
