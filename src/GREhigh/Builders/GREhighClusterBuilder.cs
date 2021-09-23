@@ -1,3 +1,4 @@
+using GREhigh.DomainBase;
 using GREhigh.Infrastructure.Interfaces;
 using GREhigh.RoomRegistries;
 
@@ -26,7 +27,8 @@ namespace GREhigh.Builders {
             _params.SchedulerFactory = factory;
             return this;
         }
-        public GREhighClusterBuilder WithTransactionChef(IInfrastructureFactory<ITransactionChef> factory) {
+        public GREhighClusterBuilder WithTransactionChef(
+            IInfrastructureFactory<ITransactionChef<Transaction>> factory) {
             _params.TransactionChefFactory = factory;
             return this;
         }

@@ -16,7 +16,7 @@ namespace GREhigh {
         private readonly IInfrastructureFactory<IUnitOfWorkGREhigh> _uofFactory;
         private readonly FactoriesRegistry _factoriesRegistry;
         private readonly HandlersRegistry _handlersRegistry;
-        private readonly ITransactionChef _transactionChef;
+        private readonly ITransactionChef<Transaction> _transactionChef;
         private readonly IInfrastructureFactory<IScheduler> _schedulerFactory;
 
         internal PartyConsumer(
@@ -26,7 +26,7 @@ namespace GREhigh {
                 IInfrastructureFactory<IUnitOfWorkGREhigh> uofFactory,
                 FactoriesRegistry factoriesRegistry,
                 HandlersRegistry handlersRegistry,
-                ITransactionChef transactionChef,
+                ITransactionChef<Transaction> transactionChef,
                 IInfrastructureFactory<IScheduler> schedulerFactory) {
             _cluster = cluster;
             _queue = queue;
@@ -51,6 +51,14 @@ namespace GREhigh {
                     party.RoomType, out var roomRepository))
                     throw new Exception("Room was not registered!");//TODO exception
 
+
+                var playerRepository = uof.GetPlayerRepository();
+                party.Players = party.Players
+                    .Select(p => playerRepository.FirstOrDefault(pp => pp.Id == p.Id))
+                    .ToList();
+
+                if (party.Players.Any(p => p == default))
+                    throw new Exception("Bad Player");//TODO exception
 
                 ///
                 /// 
@@ -91,8 +99,8 @@ namespace GREhigh {
             var transactions = _transactionChef.Cook(rawTransactions);
             var transactionsRepository = uof.GetTransactionsRepository();
             transactionsRepository.Insert(transactions);
-
             uof.Save();
+
             if (room.IsCanStart && room.SchedulerJobId == null) {
                 room.SchedulerJobId = scheduler.AddJobFinishPreparing(
                     room.PreparingTime,
@@ -106,7 +114,7 @@ namespace GREhigh {
             }
 
 
-
+            uof.Save();
             uof.Dispose();
             _cluster.OnRoomUpdated(
                                 new RoomUpdatedEventArgs(

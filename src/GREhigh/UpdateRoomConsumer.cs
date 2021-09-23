@@ -15,7 +15,7 @@ namespace GREhigh {
         private readonly IInfrastructureFactory<IUnitOfWorkGREhigh> _uofFactory;
         private readonly FactoriesRegistry _factoriesRegistry;
         private readonly HandlersRegistry _handlersRegistry;
-        private readonly ITransactionChef _transactionChef;
+        private readonly ITransactionChef<Transaction> _transactionChef;
         private readonly IInfrastructureFactory<IScheduler> _schedulerFactory;
         internal UpdateRoomConsumer(
                 GREhighCluster cluster,
@@ -24,7 +24,7 @@ namespace GREhigh {
                 IInfrastructureFactory<IUnitOfWorkGREhigh> uofFactory,
                 FactoriesRegistry factoriesRegistry,
                 HandlersRegistry handlersRegistry,
-                ITransactionChef transactionChef,
+                ITransactionChef<Transaction> transactionChef,
                 IInfrastructureFactory<IScheduler> schedulerFactory) {
             _cluster = cluster;
             _queue = queue;
@@ -80,7 +80,8 @@ namespace GREhigh {
                 case UpdateQueueRecord.RecordTypeEnum.Cancellation:
                     if (room.SchedulerJobId != null)
                         scheduler.RemoveJob(room.SchedulerJobId);
-                    handler.Cancel(out rawTransactions);
+                    if (room.Status == Room.StatusEnum.WaitingForUser)
+                        handler.Cancel(out rawTransactions);
                     break;
                 case UpdateQueueRecord.RecordTypeEnum.FinishPreparing:
                     handler.Start(out rawTransactions);
@@ -105,7 +106,7 @@ namespace GREhigh {
             var transactions = _transactionChef.Cook(rawTransactions);
             var transactionsRepository = uof.GetTransactionsRepository();
             transactionsRepository.Insert(transactions);
-
+            _ = room.Players;
             uof.Save();
             uof.Dispose();
             _cluster.OnRoomUpdated(
@@ -148,13 +149,14 @@ namespace GREhigh {
             var transactions = _transactionChef.Cook(rawTransactions);
 
             foreach (var group in transactions.GroupBy(t => t.Player)) {
-                var currentAmount = transactionsRepository.Where(x => x.Player == group.Key).Sum(x => x.Amount);
+                var currentAmount = transactionsRepository.Where(x => x.Player.Id == group.Key.Id).Sum(x => x.Amount);
                 var dif = group.Sum(t => t.Amount);
                 if (currentAmount + dif < 0) {
                     _synchronizer.Free(room);
                     return;
                 }
             }
+
 
             var scheduler = _schedulerFactory.GetInfrastructure();
             scheduler.SetUpdateProducer(_cluster.GetUpdateProducer());
@@ -167,7 +169,7 @@ namespace GREhigh {
             }
 
             transactionsRepository.Insert(transactions);
-
+            _ = room.Players;
             uof.Save();
             uof.Dispose();
             _cluster.OnRoomUpdated(
