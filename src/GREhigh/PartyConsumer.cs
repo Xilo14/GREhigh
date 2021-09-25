@@ -99,6 +99,7 @@ namespace GREhigh {
             var transactions = _transactionChef.Cook(rawTransactions);
             var transactionsRepository = uof.GetTransactionsRepository();
             transactionsRepository.Insert(transactions);
+            room.Transactions.AddRange(transactions);
             uof.Save();
 
             if (room.IsCanStart && room.SchedulerJobId == null) {
@@ -117,9 +118,9 @@ namespace GREhigh {
             uof.Save();
             uof.Dispose();
             _cluster.OnRoomUpdated(
-                                new RoomUpdatedEventArgs(
-                                    room,
-                                    typeUpdate));
+                new RoomUpdatedEventArgs(
+                    room,
+                    typeUpdate));
         }
         private void _AddToExistsRoom(
                 Room room,
@@ -151,7 +152,7 @@ namespace GREhigh {
             var transactions = _transactionChef.Cook(rawTransactions);
             var transactionsRepository = uof.GetTransactionsRepository();
             transactionsRepository.Insert(transactions);
-
+            room.Transactions.AddRange(transactions);
             if (room.IsCanStart && handler.IsStateChanged) {
                 scheduler.RemoveJob(room.SchedulerJobId);
                 room.SchedulerJobId = scheduler.AddJobFinishPreparing(
