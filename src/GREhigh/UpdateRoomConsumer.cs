@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using GREhigh.DomainBase;
 using GREhigh.Infrastructure.Interfaces;
@@ -85,7 +86,8 @@ namespace GREhigh {
                     break;
                 case UpdateQueueRecord.RecordTypeEnum.FinishPreparing:
                     handler.Start(out rawTransactions);
-                    if (room.Status == Room.StatusEnum.InProccess)
+                    if (room.Status == Room.StatusEnum.InProccess
+                    && room.TickInterval != Timeout.InfiniteTimeSpan)
                         room.SchedulerJobId = scheduler.AddJobTick(
                                 room.TickInterval,
                                 room.RoomId,
@@ -93,7 +95,8 @@ namespace GREhigh {
                     break;
                 case UpdateQueueRecord.RecordTypeEnum.Tick:
                     handler.Tick(out rawTransactions);
-                    if (room.Status == Room.StatusEnum.InProccess)
+                    if (room.Status == Room.StatusEnum.InProccess
+                    && room.TickInterval != Timeout.InfiniteTimeSpan)
                         room.SchedulerJobId = scheduler.AddJobTick(
                                 room.TickInterval,
                                 room.RoomId,
@@ -101,11 +104,10 @@ namespace GREhigh {
                     break;
             }
 
-
-
             var transactions = _transactionChef.Cook(rawTransactions);
             var transactionsRepository = uof.GetTransactionsRepository();
             transactionsRepository.Insert(transactions);
+            room.Transactions.AddRange(transactions);
             _ = room.Players;
             uof.Save();
             uof.Dispose();
@@ -169,6 +171,7 @@ namespace GREhigh {
             }
 
             transactionsRepository.Insert(transactions);
+            room.Transactions.AddRange(transactions);
             _ = room.Players;
             uof.Save();
             uof.Dispose();
