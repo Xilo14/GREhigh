@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Threading;
 using GREhigh.Utility.Interfaces;
 
 namespace GREhigh.DomainBase {
@@ -23,8 +24,8 @@ namespace GREhigh.DomainBase {
 
         public TimeSpan WaitingTimeout = TimeSpan.FromHours(3);
         public TimeSpan PreparingTime = TimeSpan.FromSeconds(15);
-        public TimeSpan TickInterval = TimeSpan.FromTicks(0);
-
+        public TimeSpan TickInterval = Timeout.InfiniteTimeSpan;
+        public List<Transaction> Transactions { get; set; } = new();
         public enum StatusEnum {
             WaitingForUser,
             PreparingForGame,
